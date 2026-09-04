@@ -52,10 +52,15 @@ export default tseslint.config(
     files: ['src/**/*.ts', 'web/src/**/*.{ts,tsx}'],
     rules: {
       // An unused variable is usually a leftover or a typo. A leading underscore
-      // (`_req`, `_next`) means "I know, Express requires this parameter".
+      // means "I know, I left this on purpose".
+      //
+      // `args: 'none'` — unused *parameters* are not flagged. A function's
+      // signature is often fixed by its caller (Express handlers, callbacks) or
+      // by a stub you have not filled in yet; that is not a mistake worth an
+      // error. Unused locals and unused imports still are.
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none' },
+        { args: 'none', varsIgnorePattern: '^_', caughtErrors: 'none' },
       ],
       // A forgotten `await` on a promise is the single most common async bug in
       // this codebase's shape (every DB call returns one).
