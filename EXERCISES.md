@@ -57,6 +57,18 @@ git checkout teaching/first-year-starter
 npm install
 ```
 
+Or land on the branch in one step, if you prefer — `-b` says which branch to
+start on:
+
+```bash
+git clone -b teaching/first-year-starter https://github.com/monashcoding/resource-hub.git
+cd resource-hub
+npm install
+```
+
+Either is fine. Don't add `--single-branch` though: it skips downloading `main`,
+and `main` is where the finished answers are.
+
 That last one downloads the project's dependencies. It takes a minute and prints
 a lot; as long as it doesn't end in `ERR!`, it worked.
 
@@ -548,10 +560,11 @@ In this order:
 6. **Ask me.** Bring the failing test output — "I expected X, I got Y, here's
    what I tried" gets a much better answer than "it doesn't work".
 7. **Look at the answer.** The finished version of every one of these lives on
-   the `main` branch:
+   the `main` branch, and you can read it without leaving your own:
    ```bash
-   git show main:src/server/content/tree.ts
+   git show origin/main:src/server/content/tree.ts
    ```
+   (`origin/main` rather than `main` — that works no matter how you cloned.)
    This isn't cheating, but do it *after* you've had a real go — reading a
    solution to a problem you've wrestled with teaches you something; reading one
    to a problem you skimmed teaches you nothing. And if you do look, close it,
