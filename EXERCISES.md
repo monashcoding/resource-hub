@@ -43,6 +43,71 @@ without touching a database, a network, or a screen. That's exactly why these
 are the pieces worth testing, and it's why you can do all five on a laptop on a
 train with no wifi.
 
+But you'll want to see the actual website at some point, so:
+
+### Optional, and worth it: run the real site
+
+You need [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+installed and running. Then, once:
+
+```bash
+npm run setup
+```
+
+That starts a throwaway Postgres in a container, creates the tables, adds the
+four regions, and fills them with 26 sample resources to look at. It prints what
+it did at each step. Give it a minute or two the first time — it has to download
+the database image — and a few seconds every time after that.
+
+Then, in two more terminals:
+
+```bash
+npm run dev        # the API, on http://localhost:3000
+npm run dev:web    # the website, on http://localhost:5173
+```
+
+Open <http://localhost:5173>. That's the real thing, running on your machine,
+with your code in it.
+
+| Command | What it does |
+|---|---|
+| `npm run setup` | All of the below, in order — the only one you normally need |
+| `npm run db:up` | Start the database container |
+| `npm run db:down` | Stop it. Your data survives. |
+| `npm run db:reset` | Stop it **and delete the data**, to start completely clean |
+| `npm run db:sample` | Re-load the sample resources (safe to run any time) |
+
+Two things that will look broken and aren't:
+
+- **`/admin` won't work.** It shows the sign-in screen and stops there. Signing
+  in needs MAC's login service, whose session cookie only works on
+  `*.monashcoding.com` — never on `localhost`. That's why there's a sample-data
+  script at all: it's the only way to get resources into a local database.
+- **The site is empty until you've done exercise 1.** That's not a bug, it's
+  the point — see below.
+
+### Watching your own exercises change the site
+
+Three of the five are visible in the browser, which is much more satisfying than
+watching test output:
+
+- **Exercise 1 (`isPubliclyVisible`)** — before you write it, every region says
+  "0 resources" and every page is empty, because nothing is allowed through.
+  Afterwards, 22 resources appear. The sample data deliberately includes four
+  that must *never* show up — one hidden, one archived, one pending, one
+  rejected — and `npm run db:sample` prints their names. If any of those four
+  appear on the site, your version is letting things through that it shouldn't.
+- **Exercise 4 (`presentationFor`)** — before, the map is four identical grey
+  boxes sitting in one flat row, all the same size and with no pictures.
+  Afterwards, each one has its own colour, its own artwork, and its own place in
+  the deliberately irregular grid (two of them are twice the size of the others).
+- **Exercise 5 (`filterCategory`)** — before, typing in a region's search box
+  does nothing at all. Afterwards it filters as you type. Try "free": 15 of the
+  sample resources are tagged that way.
+
+Exercises 2 and 3 are on the write path — they run when a committee member adds
+or reorders something — so you can only see those through the tests.
+
 ---
 
 ## 2. The commands
@@ -434,9 +499,10 @@ Then run the whole thing:
 npm run check     # lint + types + tests, all green
 ```
 
-Come find me when you get there — the next step is running it against a real
-database and adding a feature nobody has written yet, which is a different and
-much more interesting kind of hard.
+Come find me when you get there. If you haven't run the real site yet, do that
+now (section 1) and go and look at what you built. After that, the next step is
+adding a feature nobody has written yet, which is a different and much more
+interesting kind of hard.
 
 If you want to poke around in the meantime, the parts you didn't touch are worth
 a read in roughly this order:

@@ -119,12 +119,32 @@ no further — see the note below about localhost.
 
 ### Local development
 
+On this branch there is a one-command path that needs only Docker:
+
 ```bash
 npm install
-createdb mac_resource_hub                      # or point DATABASE_URL at any Postgres
-npm run db:migrate && npm run db:seed
+npm run setup        # Postgres in a container + migrate + seed + sample resources
 npm run dev          # API on :3000
 npm run dev:web      # SPA on :5173, proxying /api to :3000
+```
+
+`npm run setup` is `db:up` + `db:migrate` + `db:seed` + `db:sample`. The database
+container is `docker-compose.dev.yml` — Postgres only, published on **5433** so
+it cannot collide with a Postgres you already have, with `DATABASE_URL` supplied
+by the committed `.env.dev`. `npm run db:down` stops it; `npm run db:reset` stops
+it and deletes the data.
+
+`npm run db:sample` loads throwaway resources so there is something to look at
+(see `scripts/dev-sample-data.ts`, which refuses to run against anything but a
+local database). It exists because `/admin` cannot work on localhost, so there is
+no other way to get a resource row into a local database. It is not on `main`.
+
+Or point `DATABASE_URL` at any Postgres of your own and skip the container:
+
+```bash
+createdb mac_resource_hub
+export DATABASE_URL=postgres://…        # wins over .env.dev
+npm run db:migrate && npm run db:seed
 ```
 
 Public browsing works offline. **The `/admin` page will not work on `localhost`** — mac-auth

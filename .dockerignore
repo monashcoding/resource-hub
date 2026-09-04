@@ -9,6 +9,11 @@ dist
 .gitignore
 .env
 .env.local
+# Teaching-branch local-dev files: a database URL pointing at localhost and a
+# fixture script have no business inside a production image.
+.env.dev
+docker-compose.dev.yml
+scripts/
 *.log
 .DS_Store
 

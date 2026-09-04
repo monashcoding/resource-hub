@@ -1,0 +1,42 @@
+# Postgres for local development — nothing else.
+#
+# This file is for the teaching branch and for anyone working on the app on
+# their own machine. It is NOT production (that's docker-compose.yml) and it is
+# NOT the local end-to-end test of the real image (that's the two files together
+# with docker-compose.local.yml). It runs one thing: an empty database for
+# `npm run dev` to talk to.
+#
+#   npm run db:up        start it
+#   npm run db:down      stop it (your data survives)
+#   npm run db:reset     stop it and DELETE the data, to start clean
+#
+# `.env.dev` (committed alongside this file) points DATABASE_URL at it. The
+# password is a throwaway on a database bound to localhost; this file must never
+# be used to run a real deployment.
+name: mac-resource-hub-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mac_resource_hub
+      POSTGRES_PASSWORD: mac_resource_hub
+      POSTGRES_DB: mac_resource_hub
+    ports:
+      # 5433 on your machine, not 5432 — deliberately. Postgres installed
+      # normally takes 5432, and this container must not fight it. `.env.dev`
+      # points DATABASE_URL here, so nothing else has to know.
+      #
+      # If 5433 is taken too, change the LEFT number and the port in .env.dev.
+      - "5433:5432"
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mac_resource_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  dev-db-data:
