@@ -71,7 +71,7 @@ const byOrder = <T extends { sortOrder: number; id: number }>(a: T, b: T): numbe
  * condition anywhere else — call this instead, or the two will drift.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * ⭐ EXERCISE 1 — the most important four lines in the whole app
+ * ⭐ EXERCISE 1 — the most important single line in the whole app
  * ─────────────────────────────────────────────────────────────────────────────
  * Run this exercise's tests with:
  *

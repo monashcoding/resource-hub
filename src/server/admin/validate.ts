@@ -4,8 +4,10 @@ import { z } from 'zod';
  * Slugify a name for use as a category slug.
  *
  * A slug is the machine-readable version of a name: `"Interview Prep"` becomes
- * `"interview-prep"`. It is what ends up in URLs, so it may only contain
- * lowercase letters, digits and single hyphens.
+ * `"interview-prep"` — lowercase letters, digits and single hyphens, nothing
+ * else. A category's slug is its stable key inside its region (two categories in
+ * the same region can't share one). Region slugs, made the same way, go straight
+ * into public URLs: `/r/starting-comp-sci`.
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * ⭐ EXERCISE 3 — turning a human name into a URL-safe slug
@@ -14,10 +16,10 @@ import { z } from 'zod';
  *
  * WHAT IT HAS TO DO, as a chain of small transformations. Do them in this order:
  *   1. lowercase everything
- *   2. `.normalize('NFKD')` — splits an accented letter like `é` into a plain
- *      `e` plus a separate accent mark, so step 3 keeps the letter and drops
- *      only the mark. (Without this, `é` is one character that is not a-z and
- *      the whole letter disappears.)
+ *   2. `.normalize('NFKD')` — splits an accented letter like `é` into two
+ *      characters: a plain `e`, then a separate accent mark. That way step 3
+ *      keeps the `e`. Without it, `é` is a single character that isn't a-z, so
+ *      step 3 eats the whole letter: 'Café' would slugify to 'caf'.
  *   3. replace every run of characters that is NOT a lowercase letter or digit
  *      with a single hyphen
  *   4. remove hyphens stuck to the very start or the very end
@@ -29,7 +31,7 @@ import { z } from 'zod';
  *   '  --Where to Find Internships!  '→ 'where-to-find-internships'
  *   'Web  Dev   101'                  → 'web-dev-101'    (a run collapses to ONE -)
  *   'C++ & Data Structures'           → 'c-data-structures'
- *   'Résumé Prep'                     → 're-sume-prep'
+ *   'Résumé Prep'                     → 're-sume-prep'  ← surprising; see below
  *   '---'                             → ''               (nothing sluggable)
  *   'a' repeated 200 times            → 64 characters
  *
@@ -58,14 +60,25 @@ import { z } from 'zod';
  *       'a  b!!c'.replace(/[^a-z0-9]+/g, '-');  // 'a-b-c'
  *       '--hi--'.replace(/^-+|-+$/g, '');       // 'hi'
  *
- *   Try these yourself before writing the function — paste them into a browser
- *   console, or run `node -e "console.log('a  b!!c'.replace(/[^a-z0-9]+/g, '-'))"`.
+ *   Try these yourself before writing the function. Paste them into your
+ *   browser's dev console, or run one from a terminal:
+ *
+ *       node -e "console.log('C++ & Data Structures'.toLowerCase().replace(/[^a-z0-9]+/g, '-'))"
  *
  * ⚠️  GOTCHA: without the `g` flag only the FIRST match is replaced, so
  *     'a b c' would come out as 'a-b c'.
  *
  * ⚠️  GOTCHA: order matters. Lowercase BEFORE the `[^a-z0-9]` step, or every
- *     capital letter counts as "not a lowercase letter" and gets eaten.
+ *     capital letter counts as "not a lowercase letter" and gets eaten
+ *     ('Resume Prep' would come out as 'esume-rep').
+ *
+ * ⚠️  Why 'Résumé Prep' becomes 're-sume-prep' and not 'resume-prep': after step
+ *     2 the accent is its own character sitting between the `e` and the `s`, and
+ *     step 3 turns any non-a-z0-9 character into a hyphen — including that one.
+ *     The trailing accent in 'Résumé' is at the end of the word, so it becomes a
+ *     hyphen that step 4 then trims off. This is a rough edge of a deliberately
+ *     simple rule, not something you need to fix: what matters is that the slug
+ *     is stable, unique and URL-safe, and 're-sume-prep' is all three.
  */
 export function slugify(input: string): string {
   // TODO(exercise 3): build the chain described above.
@@ -102,7 +115,8 @@ export function slugify(input: string): string {
  *
  * THE TOOLS YOU NEED
  *
- *   `.trim()` removes spaces from both ends: `'  hi  '.trim()` is `'hi'`.
+ *   `.trim()` removes whitespace (spaces, tabs, newlines) from both ends of a
+ *   string: `'  hi  '.trim()` is `'hi'`.
  *
  *   An empty string `''` is "falsy", so this reads as "if there is anything
  *   left after trimming":
@@ -117,9 +131,14 @@ export function slugify(input: string): string {
  *       seen.add('a');       // no effect, it is already there
  *       [...seen];           // ['a']
  *
- *   `.sort()` with no arguments sorts strings alphabetically:
+ *   `.sort()` with no arguments sorts strings alphabetically, which is what you
+ *   want here because every tag is lowercase by the time you sort:
  *
- *       ['b', 'a'].sort();   // ['a', 'b']
+ *       ['b', 'a'].sort();       // ['a', 'b']
+ *
+ *   (Worth knowing for later: bare `.sort()` compares things as TEXT, so
+ *   `[10, 9].sort()` gives `[10, 9]` — '1' sorts before '9'. Numbers need a
+ *   comparison function, as exercise 7 does.)
  *
  * ⚠️  GOTCHA: `.sort()` rearranges an array IN PLACE and returns that same
  *     array. Sorting `tags` directly would reorder the caller's array — one of

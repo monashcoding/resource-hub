@@ -1,7 +1,8 @@
 # Start here 👋
 
-This is a real website. It's live, students use it, and a committee of people at
-MAC add resources to it. Nothing in here is a toy.
+This is a real project, not an exercise repo invented for you. It's the MAC
+Resource Hub — a curated directory of resources for Monash CS students, which
+the committee maintains through its own admin page.
 
 Seven small functions have been taken out of it. Your job is to put them back.
 
@@ -11,14 +12,16 @@ change them. What you're writing is the *logic*: the handful of functions that
 decide what a visitor is allowed to see, what order things appear in, and what
 happens when someone types in the search box.
 
-Each one is a few lines long. Each one has tests already written that tell you,
-precisely, whether you got it right.
+They're small — the first is a single line, the last is about fifteen. Each one
+has tests already written that tell you, precisely, whether you got it right.
 
 ---
 
 ## 1. Get it running (10 minutes)
 
-You need [Node.js](https://nodejs.org) version 20 or newer. Check:
+You need [Node.js](https://nodejs.org). Version **22** is what this project runs
+in production, and what I'd install. (20.19 or newer also works; anything older
+will fail when it tries to build the front end.) Check what you've got:
 
 ```bash
 node --version
@@ -38,19 +41,27 @@ train with no wifi.
 
 ---
 
-## 2. The three commands
+## 2. The commands
 
 ```bash
-npm test          # run every test once
+npm test           # run every test once
 npm run test:watch # leave this running — it re-runs the moment you save
-npm run lint      # look for mistakes (unused variables, forgotten awaits…)
-npm run typecheck # check the types line up
-npm run check     # all three at once
+npm run lint       # look for mistakes (unused variables, forgotten awaits…)
+npm run typecheck  # check the types line up
+npm run check      # all three of the above, in order
 ```
 
-**Run `npm run test:watch` in a terminal and leave it open while you work.** Save
-a file, glance at the terminal, see whether you moved forward. That loop is the
-whole job.
+**Run `npm run test:watch` in a second terminal and leave it open while you
+work.** Save a file, glance at that terminal, see whether you moved forward. That
+loop is the whole job. Press `q` to quit it, or Ctrl-C.
+
+To watch just the one file you're working on, name it:
+
+```bash
+npx vitest src/server/content/tree.test.ts
+```
+
+That's the command listed under each exercise below.
 
 Right now, `npm test` fails. That's the starting position:
 
@@ -66,14 +77,19 @@ A failing test looks like this:
 
 ```
  FAIL  src/server/admin/reorder.test.ts > nextSortOrder > places a new item after the current last
-
-AssertionError: expected 10 to be 40
+AssertionError: expected 10 to be 40 // Object.is equality
 
 - Expected
 + Received
 
 - 40
 + 10
+
+ ❯ src/server/admin/reorder.test.ts:103:36
+    101| describe('nextSortOrder', () => {
+    102|   it('places a new item after the current last', () => {
+    103|     expect(nextSortOrder(current)).toBe(40);
+       |                                    ^
 ```
 
 Read it from the top:
@@ -82,13 +98,15 @@ Read it from the top:
 2. **Which function** — `nextSortOrder`
 3. **What it was checking** — "places a new item after the current last"
 4. **What went wrong** — it wanted `40`, your code gave `10`
+5. **The exact line** — `reorder.test.ts:103`, printed for you with the failing
+   assertion marked. Open it.
 
 `- Expected` is what the test wanted. `+ Received` is what your code actually
 did. Getting comfortable reading these is genuinely half of learning to program.
 
 **Open the test file and read the test.** It is not a locked box — it's plain
 code, and it's the clearest possible description of what your function has to
-do. `src/server/admin/reorder.test.ts` is 100 lines of readable English-ish
+do. `src/server/admin/reorder.test.ts` is about 115 lines of readable English-ish
 JavaScript. Read it.
 
 ---
@@ -100,23 +118,26 @@ Do them in order. They get harder, and each one uses something from the last.
 Every one is marked in the code with a big comment block starting
 `⭐ EXERCISE N`. Search the project for `TODO(exercise` to find them all.
 
-| # | File | Function | What you'll practise |
-|---|------|----------|----------------------|
-| 1 | `src/server/content/tree.ts` | `isPubliclyVisible` | Comparing values, `&&`, returning a boolean |
-| 2 | `src/server/admin/reorder.ts` | `nextSortOrder` | Looping over a list, finding a maximum |
-| 3 | `src/server/admin/validate.ts` | `slugify` | String methods, chaining, a first regular expression |
-| 4 | `src/server/admin/validate.ts` | `normaliseTags` | `Set`, de-duplicating, sorting, not mutating |
-| 5 | `web/src/regions.ts` | `presentationFor` | Object lookup, `??`, designing a safe fallback |
-| 6 | `web/src/search.ts` | `filterCategory` | `.filter()`, `.some()`, `.includes()`, copying an object |
-| 7 | `src/server/admin/reorder.ts` | `renormalise` | Putting all of it together |
+| # | File | Function | What you'll practise | Tests it fixes |
+|---|------|----------|----------------------|----------------|
+| 1 | `src/server/content/tree.ts` | `isPubliclyVisible` | Comparing values, `&&`, returning a boolean | 4 |
+| 2 | `src/server/admin/reorder.ts` | `nextSortOrder` | Looping over a list, finding a maximum | 2 |
+| 3 | `src/server/admin/validate.ts` | `slugify` | String methods, chaining, a first regular expression | 7 |
+| 4 | `src/server/admin/validate.ts` | `normaliseTags` | `Set`, de-duplicating, sorting, not mutating | 4 |
+| 5 | `web/src/regions.ts` | `presentationFor` | Object lookup, `??`, designing a safe fallback | 1 |
+| 6 | `web/src/search.ts` | `filterCategory` | `.filter()`, `.some()`, `.includes()`, copying an object | 4 |
+| 7 | `src/server/admin/reorder.ts` | `renormalise` | Putting all of it together | 7 |
+
+Those add up to the 29 failures, and none of them depend on each other — each
+exercise can be finished and checked entirely on its own.
 
 ### 1 — `isPubliclyVisible`
 
 `npx vitest src/server/content/tree.test.ts`
 
-Four lines that decide whether a member of the public can see a resource. If
-this is wrong, either the site is empty or it shows things that were supposed to
-be hidden. Start here because it's the smallest, and because it matters most.
+One line that decides whether a member of the public can see a resource. If it's
+wrong, either the site is empty or it shows things that were meant to be hidden.
+Start here because it's the smallest, and because it matters most.
 
 ### 2 — `nextSortOrder`
 
@@ -132,9 +153,10 @@ The trap: the list isn't sorted. "The biggest" is not "the last one".
 
 `npx vitest src/server/admin/validate.test.ts`
 
-`"Interview Prep"` needs to become `"interview-prep"` so it can go in a URL. Five
-transformations, chained. This is your first regular expression — the comment
-above the function explains every symbol you need, and nothing more.
+`"Interview Prep"` needs to become `"interview-prep"` — lowercase, no spaces, safe
+to put in a URL. Five transformations, chained. This is your first regular
+expression; the comment above the function explains every symbol you need and
+nothing more. It's the biggest single jump in the set, so take it slowly.
 
 ### 4 — `normaliseTags`
 
@@ -185,7 +207,7 @@ In this order:
 4. **Play with one piece on its own.** You don't need the project to try out a
    string method:
    ```bash
-   node -e "console.log('a  b!!c'.replace(/[^a-z0-9]+/g, '-'))"
+   node -e "console.log('C++ & Data Structures'.toLowerCase().replace(/[^a-z0-9]+/g, '-'))"
    ```
    Or open your browser's dev console and type it there. Five seconds of trying
    beats five minutes of guessing.
@@ -257,7 +279,7 @@ a read in roughly this order:
 
 - `src/server/db/schema.ts` — the shape of the data. Three tables and an audit log.
 - `src/server/content/tree.ts` — how flat database rows become the nested structure the website draws.
-- `src/server/routes/content.ts` — an HTTP endpoint, start to finish, in 20 lines.
+- `src/server/routes/content.ts` — an HTTP endpoint, start to finish, in 22 lines.
 - `web/src/pages/RegionPage.tsx` — a React page, including the search box you made work.
 - `README.md` — how the whole thing is deployed and run.
 - `CLAUDE.md` — the design decisions, and the mistakes that were deliberately avoided. Read this one last; it'll make more sense once the rest is familiar.

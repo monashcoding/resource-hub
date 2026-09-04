@@ -145,18 +145,27 @@ export function renormalise(requestedIds: number[], current: Positioned[]): Reor
  *         if (row.sortOrder > biggest) biggest = row.sortOrder;
  *       }
  *
- *   Or `Math.max`, which takes any number of numbers and returns the largest:
+ *   Or `Math.max`, which takes any number of ARGUMENTS (not an array) and
+ *   returns the largest:
  *
- *       Math.max(3, 9, 4);      // 9
- *       Math.max(0, 3);         // 3
+ *       Math.max(3, 9, 4);              // 9
+ *
+ *   To use it on an array, spread the array into arguments with `...`:
+ *
+ *       Math.max(...[3, 9, 4]);         // 9   — same as Math.max(3, 9, 4)
+ *       Math.max(0, ...[3, 9, 4]);      // 9   — with a floor of 0
  *
  * ⚠️  GOTCHA: the rows are NOT guaranteed to be sorted. The test "uses the
  *     largest sortOrder, not the last element" exists because reaching for
  *     `current[current.length - 1]` looks right and is wrong.
  *
- * ⚠️  GOTCHA: `Math.max()` with no arguments at all returns `-Infinity`, so
- *     starting your comparison from 0 (as the loop above does) is what makes the
- *     empty case come out as 10.
+ * ⚠️  GOTCHA: `Math.max()` with no arguments returns `-Infinity`, so an empty
+ *     list would give you `-Infinity + 10`. Including a 0 — as the starting
+ *     value of the loop, or as an extra argument to `Math.max` — is what makes
+ *     the empty case come out as 10.
+ *
+ *         Math.max(...[]);        // -Infinity   ✗
+ *         Math.max(0, ...[]);     // 0           ✓
  */
 export function nextSortOrder(current: Positioned[]): number {
   // TODO(exercise 2): return (the largest sortOrder in `current`) + 10, or 10

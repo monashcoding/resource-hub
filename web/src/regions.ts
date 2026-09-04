@@ -99,6 +99,17 @@ const FALLBACK: RegionPresentation = {
  *
  *   So the whole function is one `return` with a `??` in it.
  *
+ *   TypeScript will actually insist on it. Because this project turns on
+ *   `noUncheckedIndexedAccess`, looking a key up in this object has the type
+ *   `RegionPresentation | undefined` — "maybe there, maybe not". Returning it
+ *   without a fallback fails `npm run typecheck` with:
+ *
+ *       Type 'RegionPresentation | undefined' is not assignable to
+ *       type 'RegionPresentation'.
+ *
+ *   That is the type system catching the exact bug this exercise is about,
+ *   before the code ever runs. Read those errors — they are on your side.
+ *
  * ⚠️  GOTCHA: don't reach for `||` here. `||` falls back on ANY falsy value —
  *     `0`, `''`, `false` — which is a bug waiting to happen the day a legitimate
  *     value is one of those. `??` only falls back on null/undefined, which is

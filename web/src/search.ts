@@ -42,7 +42,11 @@ import type { TreeCategory } from './types.js';
  *       'LeetCode'.includes('leetcode');           // false! capitals differ
  *
  *   ...which is why you lowercase BOTH sides before comparing. Lowercase the
- *   query once, at the top, rather than inside the loop.
+ *   query once, at the top, rather than once per resource.
+ *
+ *   (Tags are a special case: they were already lowercased on the way into the
+ *   database by `normaliseTags` — exercise 4 — so they need no lowercasing here.
+ *   Doing it anyway is harmless, and it is the safer habit.)
  *
  *   `.filter()` builds a NEW array of the elements you say `true` to:
  *
