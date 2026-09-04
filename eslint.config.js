@@ -13,7 +13,7 @@ import globals from 'globals';
 export default tseslint.config(
   {
     // Build output, deps, and generated SQL are not ours to lint.
-    ignores: ['dist/**', 'node_modules/**', 'drizzle/**', 'web/dist/**'],
+    ignores: ['dist/**', 'node_modules/**', 'drizzle/**'],
   },
 
   js.configs.recommended,

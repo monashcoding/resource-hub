@@ -2,6 +2,9 @@
   "name": "mac-resource-hub",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "type": "module",
   "description": "MAC Resource Hub \u2014 a map-style directory of curated CS resources for Monash students",
   "scripts": {
