@@ -60,6 +60,21 @@ const byOrder = <T extends { sortOrder: number; id: number }>(a: T, b: T): numbe
   a.sortOrder - b.sortOrder || a.id - b.id;
 
 /**
+ * THE public visibility rule for a single resource row.
+ *
+ * A visitor may see a resource only when it has been published by a committee
+ * member AND has not been archived. `pending` (a future community submission)
+ * and `rejected` fail the first half; a soft-deleted row fails the second.
+ *
+ * Exported so it can be unit-tested directly, but it stays in this file on
+ * purpose: `tree.ts` is the single place visibility rules live. Do not copy this
+ * condition anywhere else — call this instead, or the two will drift.
+ */
+export function isPubliclyVisible(row: Pick<ResourceRow, 'status' | 'archivedAt'>): boolean {
+  return row.status === 'published' && row.archivedAt === null;
+}
+
+/**
  * Assemble the nested tree from flat rows. Pure — no DB access — so the
  * visibility rules that decide what the public can see are unit-testable in
  * isolation. This is the single place those rules live; nothing else filters.
@@ -72,7 +87,7 @@ export function buildTree(
 ): ContentTree {
   const resourcesByCategory = new Map<number, TreeResource[]>();
   for (const r of resourceRows) {
-    if (!includeHidden && (r.status !== 'published' || r.archivedAt !== null)) continue;
+    if (!includeHidden && !isPubliclyVisible(r)) continue;
     const list = resourcesByCategory.get(r.categoryId) ?? [];
     list.push({
       id: r.id,

@@ -124,10 +124,30 @@ only trusts `https://*.monashcoding.com` origins, so its session cookie is never
 mac-auth to add your dev origin to its `TRUSTED_ORIGINS`.
 
 ```bash
-npm test          # unit tests
+npm test          # unit tests (pure — no database needed)
+npm run test:watch # re-runs the moment you save a file
+npm run lint      # ESLint over server + SPA
+npm run lint:fix  # ...and fix what it can automatically
 npm run typecheck # server + SPA
+npm run check     # lint + typecheck + tests, i.e. everything
 npm run build     # compile server (tsc) + bundle SPA (vite)
 ```
+
+The test suite is deliberately all **pure unit tests** — no database, no HTTP
+server, no browser — so `npm test` works on a fresh clone with nothing running.
+What it pins down is the logic that would be expensive to get wrong:
+
+| File | What it guards |
+|---|---|
+| `src/server/content/tree.test.ts` | The visibility rule. Nothing hidden, pending, rejected or archived can reach a visitor. |
+| `src/server/admin/reorder.test.ts` | Ordering maths — renumbering, and not dropping a sibling another committee member added mid-edit. |
+| `src/server/admin/validate.test.ts` | Input normalisation and the schemas, including that the admin cannot set `pending`/`rejected`. |
+| `web/src/search.test.ts` | The region search box's filtering. |
+| `web/src/regions.test.ts` | Every region has a colour and a grid slot, no two share a slot, unknown slugs fall back. |
+
+Linting is ESLint 9 flat config (`eslint.config.js`), type-aware, with a small
+rule set: unused variables, floating promises, and the React hook rules. There is
+no Prettier — formatting is not enforced, so nobody is blocked by a comma.
 
 ---
 

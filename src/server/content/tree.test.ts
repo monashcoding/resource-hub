@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildTree, type RegionRow, type CategoryRow, type ResourceRow } from './tree.js';
+import { buildTree, isPubliclyVisible, type RegionRow, type CategoryRow, type ResourceRow } from './tree.js';
 
 const now = new Date();
 
@@ -128,5 +128,28 @@ describe('buildTree — admin payload', () => {
   it('still reports resourceCount as what the public would see', () => {
     const tree = buildTree(regions, categories, [resource({ id: 100, categoryId: 10, status: 'hidden' })], opts);
     expect(tree.regions.find((r) => r.slug === 'alpha')!.resourceCount).toBe(0);
+  });
+});
+
+// ── The single visibility rule ───────────────────────────────────────────────
+// buildTree is where this rule is applied; isPubliclyVisible is the rule itself.
+// If these tests pass and buildTree calls it, no unvetted row can reach a
+// visitor — which is the one thing in this codebase that must never regress.
+
+describe('isPubliclyVisible', () => {
+  it('accepts a published, un-archived resource', () => {
+    expect(isPubliclyVisible({ status: 'published', archivedAt: null })).toBe(true);
+  });
+
+  it.each(['hidden', 'pending', 'rejected'] as const)('rejects a %s resource', (status) => {
+    expect(isPubliclyVisible({ status, archivedAt: null })).toBe(false);
+  });
+
+  it('rejects an archived resource even when it is published', () => {
+    expect(isPubliclyVisible({ status: 'published', archivedAt: now })).toBe(false);
+  });
+
+  it('rejects a resource that is both hidden and archived', () => {
+    expect(isPubliclyVisible({ status: 'hidden', archivedAt: now })).toBe(false);
   });
 });

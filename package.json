@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "MAC Resource Hub — a map-style directory of curated CS resources for Monash students",
+  "description": "MAC Resource Hub \u2014 a map-style directory of curated CS resources for Monash students",
   "scripts": {
     "dev": "tsx watch src/server/index.ts",
     "dev:web": "vite --config web/vite.config.ts",
@@ -15,7 +15,10 @@
     "db:push": "drizzle-kit push",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check": "npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
@@ -29,14 +32,19 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^6.0.3",
     "drizzle-kit": "^0.31.10",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.12.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.69.0",
     "vite": "^8.1.5",
     "vitest": "^4.1.10"
   }

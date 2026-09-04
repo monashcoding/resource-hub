@@ -4,22 +4,7 @@ import { ResourceRow } from '../components/ResourceRow.js';
 import { presentationFor } from '../regions.js';
 import { viewTransitionName, withTransition } from '../transition.js';
 import { useContent } from '../useContent.js';
-import type { TreeCategory } from '../types.js';
-
-/** Case-insensitive match across title, description and tags. */
-function matches(query: string, category: TreeCategory): TreeCategory {
-  if (!query) return category;
-  const q = query.toLowerCase();
-  return {
-    ...category,
-    resources: category.resources.filter(
-      (r) =>
-        r.title.toLowerCase().includes(q) ||
-        r.description.toLowerCase().includes(q) ||
-        r.tags.some((t) => t.includes(q)),
-    ),
-  };
-}
+import { filterCategory } from '../search.js';
 
 export function RegionPage(): JSX.Element {
   const { regionSlug = '' } = useParams();
@@ -32,7 +17,7 @@ export function RegionPage(): JSX.Element {
 
   // Filtering is free here because the whole tree is already client-side.
   const categories = useMemo(
-    () => (region?.categories ?? []).map((c) => matches(query, c)).filter((c) => c.resources.length > 0 || !query),
+    () => (region?.categories ?? []).map((c) => filterCategory(query, c)).filter((c) => c.resources.length > 0 || !query),
     [region, query],
   );
 
