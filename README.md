@@ -155,8 +155,9 @@ What it pins down is the logic that would be expensive to get wrong:
 | `web/src/regions.test.ts` | Every region has a colour and a grid slot, no two share a slot, unknown slugs fall back. |
 
 Linting is ESLint 9 flat config (`eslint.config.js`), type-aware, with a small
-rule set: unused variables, floating promises, and the React hook rules. There is
-no Prettier — formatting is not enforced, so nobody is blocked by a comma.
+rule set: unused locals and imports, floating promises, and the React hook rules.
+Unused *parameters* are not flagged — a signature is often fixed by the caller.
+There is no Prettier: formatting is not enforced, so nobody is blocked by a comma.
 
 ---
 
