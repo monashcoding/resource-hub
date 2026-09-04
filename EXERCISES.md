@@ -60,6 +60,14 @@ npm install
 That last one downloads the project's dependencies. It takes a minute and prints
 a lot; as long as it doesn't end in `ERR!`, it worked.
 
+It will finish with something like `9 moderate severity vulnerabilities` and
+suggest `npm audit fix --force`. **Ignore that, and do not run it.** Those
+warnings are about packages this project barely uses, `--force` upgrades things
+across major versions whether or not anything is ready for it, and it is a
+genuinely good way to break a working project in one command. Keeping
+dependencies current is a real job, but it's a separate one, and it isn't
+yours today.
+
 **Check you're on the right branch before you write anything:**
 
 ```bash
