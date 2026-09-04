@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" fill="none" role="img" aria-hidden="true">
+  <!-- Placeholder artwork for the "competitive-programming" region. Replace this file with the
+       real illustration; the map card picks it up by filename (same slug). -->
+  <g stroke="#e0c8ff" stroke-width="1.4" opacity="0.85">
+    <path d="M-20 116 Q 80 76 180 116 T 420 96" />
+    <path d="M-20 146 Q 90 101 190 141 T 420 126" />
+    <path d="M-20 176 Q 100 131 200 171 T 420 156" />
+    <path d="M-20 76 Q 70 36 170 71 T 420 56" />
+  </g>
+  <circle cx="318" cy="106" r="46" stroke="#e0c8ff" stroke-width="1.4" opacity="0.5" />
+  <circle cx="318" cy="106" r="24" stroke="#e0c8ff" stroke-width="1.4" opacity="0.35" />
+</svg>

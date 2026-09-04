@@ -1,0 +1,18 @@
+# Local testing overlay. NOT used in production and NOT auto-loaded — Docker only
+# auto-merges `docker-compose.override.yml`, never this file. Run it explicitly:
+#
+#   docker network create dokploy-network      # once; Dokploy creates this on the VM
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+#
+# Then open http://localhost:3000. Note that /admin will show the sign-in screen
+# and go no further: mac-auth's session cookie is scoped to .monashcoding.com and
+# is never sent to localhost. Public browsing works fully.
+services:
+  app:
+    # Production publishes no host port (Traefik reaches it over the shared
+    # network); locally we need one to open a browser.
+    ports:
+      - "3000:3000"
+    environment:
+      # Point the SPA and verifier at prod auth so the sign-in screen renders.
+      AUTH_URL: https://auth.monashcoding.com

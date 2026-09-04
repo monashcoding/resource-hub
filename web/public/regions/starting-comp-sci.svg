@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" fill="none" role="img" aria-hidden="true">
+  <!-- Placeholder artwork for the "starting-comp-sci" region. Replace this file with the
+       real illustration; the map card picks it up by filename (same slug). -->
+  <g stroke="#bcd6ff" stroke-width="1.4" opacity="0.85">
+    <path d="M-20 120 Q 80 80 180 120 T 420 100" />
+    <path d="M-20 150 Q 90 105 190 145 T 420 130" />
+    <path d="M-20 180 Q 100 135 200 175 T 420 160" />
+    <path d="M-20 80 Q 70 40 170 75 T 420 60" />
+  </g>
+  <circle cx="318" cy="110" r="46" stroke="#bcd6ff" stroke-width="1.4" opacity="0.5" />
+  <circle cx="318" cy="110" r="24" stroke="#bcd6ff" stroke-width="1.4" opacity="0.35" />
+</svg>

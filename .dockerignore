@@ -1,0 +1,17 @@
+# Host-built artefacts must never enter the image: node_modules here is compiled
+# for macOS, and copying it over the Linux modules installed by `npm ci` breaks
+# the build (esbuild/vite ship platform-specific binaries).
+node_modules
+dist
+
+# Local-only files
+.git
+.gitignore
+.env
+.env.local
+*.log
+.DS_Store
+
+# Docs and CI don't affect the runtime image.
+README.md
+CLAUDE.md

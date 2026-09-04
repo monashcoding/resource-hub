@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" fill="none" role="img" aria-hidden="true">
+  <!-- Placeholder artwork for the "internships-careers" region. Replace this file with the
+       real illustration; the map card picks it up by filename (same slug). -->
+  <g stroke="#ffd9ae" stroke-width="1.4" opacity="0.85">
+    <path d="M-20 108 Q 80 68 180 108 T 420 88" />
+    <path d="M-20 138 Q 90 93 190 133 T 420 118" />
+    <path d="M-20 168 Q 100 123 200 163 T 420 148" />
+    <path d="M-20 68 Q 70 28 170 63 T 420 48" />
+  </g>
+  <circle cx="318" cy="98" r="46" stroke="#ffd9ae" stroke-width="1.4" opacity="0.5" />
+  <circle cx="318" cy="98" r="24" stroke="#ffd9ae" stroke-width="1.4" opacity="0.35" />
+</svg>

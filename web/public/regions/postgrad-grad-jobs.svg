@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" fill="none" role="img" aria-hidden="true">
+  <!-- Placeholder artwork for the "postgrad-grad-jobs" region. Replace this file with the
+       real illustration; the map card picks it up by filename (same slug). -->
+  <g stroke="#b9f0da" stroke-width="1.4" opacity="0.85">
+    <path d="M-20 128 Q 80 88 180 128 T 420 108" />
+    <path d="M-20 158 Q 90 113 190 153 T 420 138" />
+    <path d="M-20 188 Q 100 143 200 183 T 420 168" />
+    <path d="M-20 88 Q 70 48 170 83 T 420 68" />
+  </g>
+  <circle cx="318" cy="118" r="46" stroke="#b9f0da" stroke-width="1.4" opacity="0.5" />
+  <circle cx="318" cy="118" r="24" stroke="#b9f0da" stroke-width="1.4" opacity="0.35" />
+</svg>
