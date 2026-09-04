@@ -21,23 +21,120 @@ has tests already written that tell you, precisely, whether you got it right.
 
 ---
 
-## 1. Get it running (10 minutes)
+## 1. Before you start
 
-You need [Node.js](https://nodejs.org). Version **22** is what this project runs
-in production, and what I'd install. (20.19 or newer also works; anything older
-will fail when it tries to build the front end.) Check what you've got:
+### What you need on your machine
 
-```bash
-node --version
+| | What | Why | Check it's there |
+|---|---|---|---|
+| **1** | [**Git**](https://git-scm.com/downloads) | To get the code, and to save your work as you go | `git --version` |
+| **2** | [**Node.js**](https://nodejs.org) — take the **LTS** download | Runs the project and the tests | `node --version` |
+| **3** | A code editor — [**VS Code**](https://code.visualstudio.com) unless you already have one | Where you'll actually write | it opens |
+| **4** | *Optional:* [**Docker Desktop**](https://www.docker.com/products/docker-desktop/) | Only if you want to see the real website running. The exercises don't need it. | `docker --version` |
+
+Each `--version` command should print a version number rather than an error like
+`command not found`. Mine print:
+
+```
+git version 2.46.0
+v22.13.1
+Docker version 27.4.0
 ```
 
-Then, from the project folder:
+On Node: **22 or newer**. That's what the site runs in production. Anything older
+than 20.19 will install fine and then fail confusingly when it builds the front
+end, so if `node --version` shows something older, update it before going on.
+
+`npm` comes bundled with Node — you don't install it separately. If `node
+--version` works, `npm --version` will too.
+
+### Getting the code
 
 ```bash
+git clone https://github.com/monashcoding/resource-hub.git
+cd resource-hub
+git checkout teaching/first-year-starter
 npm install
 ```
 
-That's it. **You do not need a database for any of these exercises.** Everything
+That last one downloads the project's dependencies. It takes a minute and prints
+a lot; as long as it doesn't end in `ERR!`, it worked.
+
+**Check you're on the right branch before you write anything:**
+
+```bash
+git branch --show-current
+```
+
+It must say `teaching/first-year-starter`. If it says `main` you're looking at
+the finished version, and every exercise will already be done.
+
+### Check it all works
+
+Run these three. This is the "is my setup broken, or is it me?" baseline — do it
+now, while nothing is your fault yet.
+
+```bash
+npm test
+```
+> Should end `Tests  15 failed | 50 passed (65)`. **Failures here are correct** —
+> those 15 are the exercises waiting for you.
+
+```bash
+npm run lint
+```
+> Should print almost nothing: two lines starting with `>`, then silence. For
+> most command-line tools, **silence means success**. It only speaks up when
+> something's wrong.
+
+```bash
+npm run typecheck
+```
+> Same — two `>` lines and nothing else.
+
+If `npm test` errors instead of failing tests (something like `command not
+found` or `Cannot find module`), that's a setup problem, not an exercise. Most
+likely `npm install` didn't finish. Run it again, and bring me the error if it
+still won't go.
+
+### What I'm assuming you already know
+
+- You've written *some* code before, in any language. Python from FIT1045 is
+  exactly the right amount.
+- You can open a terminal, `cd` into a folder, and run a command.
+- You know what a variable, a function, an `if` and a loop are.
+
+**What I'm not assuming**, and which you therefore don't need to learn first:
+JavaScript, TypeScript, React, SQL, Docker, or anything about git beyond the
+six commands this file spells out for you (`clone`, `checkout`, `branch`, `add`,
+`commit`, `show`). Section 4 covers the JavaScript you need, in terms
+of the Python you already know. Everything else in the project is already
+written.
+
+### If you're on Windows
+
+The commands in this file assume a Unix-style terminal. Use **Git Bash** (it
+comes with Git) or **PowerShell** and everything here works as written. The one
+difference: where a command says
+
+```bash
+export DATABASE_URL=...
+```
+
+PowerShell wants
+
+```powershell
+$env:DATABASE_URL = "..."
+```
+
+You'll only hit that if you go off the beaten path — the normal setup doesn't
+need it.
+
+---
+
+## 2. Get it running
+
+**You do not need a database for any of these exercises.** Everything
 you're writing is a *pure function* — it takes values in and returns values out,
 without touching a database, a network, or a screen. That's exactly why these
 are the pieces worth testing, and it's why you can do all five on a laptop on a
@@ -110,7 +207,7 @@ or reorders something — so you can only see those through the tests.
 
 ---
 
-## 2. The commands
+## 3. The commands
 
 ```bash
 npm test           # run every test once
@@ -180,7 +277,7 @@ English-ish JavaScript. Read it.
 
 ---
 
-## 3. JavaScript, if you know a bit of Python
+## 4. JavaScript, if you know a bit of Python
 
 This project is TypeScript, which is JavaScript with type labels added. If
 FIT1045 taught you Python, most of your instincts transfer — but the syntax
@@ -330,7 +427,7 @@ don't think about it.
 
 ---
 
-## 4. The exercises
+## 5. The exercises
 
 Do them in order. They get harder, and each one uses something from the last.
 
@@ -394,7 +491,7 @@ comment explains why it would be a nasty bug.
 
 ---
 
-## 5. The two worked examples
+## 6. The two worked examples
 
 These are already written. Nothing to do, and no tests waiting on you. They're
 the two hardest functions in the project, left finished on purpose: you'll learn
@@ -420,7 +517,7 @@ git checkout -- src/server/admin/validate.ts    # undo my experiment
 
 ---
 
-## 6. When you're stuck
+## 7. When you're stuck
 
 In this order:
 
@@ -428,7 +525,7 @@ In this order:
    name, read what it does. It's the spec.
 2. **Re-read the comment above the function.** The worked examples and the
    ⚠️ GOTCHAs are there because those are the things people actually get wrong.
-3. **Check the primer in section 3.** Most "I don't understand this line"
+3. **Check the primer in section 4.** Most "I don't understand this line"
    moments are syntax, not logic.
 4. **Print things out.** Add `console.log(...)` inside your function and run the
    tests again — whatever you print shows up in the terminal. Delete them when
@@ -454,7 +551,7 @@ In this order:
 
 ---
 
-## 7. Rules of the road
+## 8. Rules of the road
 
 - **Don't edit the test files.** Making a test pass by changing what it asks for
   is the one move that defeats the whole exercise. If you're certain a test is
@@ -470,7 +567,7 @@ In this order:
 
 ---
 
-## 8. Words you'll see
+## 9. Words you'll see
 
 | Term | What it means here |
 |---|---|
@@ -486,7 +583,7 @@ In this order:
 
 ---
 
-## 9. When all 65 pass
+## 10. When all 65 pass
 
 ```
 Test Files  5 passed (5)
@@ -500,7 +597,7 @@ npm run check     # lint + types + tests, all green
 ```
 
 Come find me when you get there. If you haven't run the real site yet, do that
-now (section 1) and go and look at what you built. After that, the next step is
+now (section 2) and go and look at what you built. After that, the next step is
 adding a feature nobody has written yet, which is a different and much more
 interesting kind of hard.
 
