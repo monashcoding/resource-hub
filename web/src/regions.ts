@@ -63,7 +63,7 @@ const FALLBACK: RegionPresentation = {
  * Presentation for a slug, or a neutral card if the slug is unknown.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * ⭐ EXERCISE 5 — looking something up, with a safe fallback
+ * ⭐ EXERCISE 4 — looking something up, with a safe fallback
  * ─────────────────────────────────────────────────────────────────────────────
  *     npx vitest web/src/regions.test.ts
  *
@@ -116,7 +116,7 @@ const FALLBACK: RegionPresentation = {
  *     what "there was no entry" actually means.
  */
 export function presentationFor(slug: string): RegionPresentation {
-  // TODO(exercise 5): return the entry for `slug`, falling back to FALLBACK.
+  // TODO(exercise 4): return the entry for `slug`, falling back to FALLBACK.
   // Right now every region on the map is drawn in the same neutral grey.
   return FALLBACK;
 }

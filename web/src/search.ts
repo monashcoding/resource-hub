@@ -10,7 +10,7 @@ import type { TreeCategory } from './types.js';
  * without rendering a page — see `web/src/search.test.ts`.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * ⭐ EXERCISE 6 — filtering a list, without wrecking the original
+ * ⭐ EXERCISE 5 — filtering a list, without wrecking the original
  * ─────────────────────────────────────────────────────────────────────────────
  *     npx vitest web/src/search.test.ts
  *
@@ -45,7 +45,7 @@ import type { TreeCategory } from './types.js';
  *   query once, at the top, rather than once per resource.
  *
  *   (Tags are a special case: they were already lowercased on the way into the
- *   database by `normaliseTags` — exercise 4 — so they need no lowercasing here.
+ *   database by `normaliseTags` — exercise 3 — so they need no lowercasing here.
  *   Doing it anyway is harmless, and it is the safer habit.)
  *
  *   `.filter()` builds a NEW array of the elements you say `true` to:
@@ -82,7 +82,7 @@ import type { TreeCategory } from './types.js';
  *     falsy in JavaScript, so this catches `''` without comparing to anything.
  */
 export function filterCategory(query: string, category: TreeCategory): TreeCategory {
-  // TODO(exercise 6): return a copy of `category` whose resources match `query`.
+  // TODO(exercise 5): return a copy of `category` whose resources match `query`.
   // Right now the search box does nothing at all — every resource always shows.
   return category;
 }

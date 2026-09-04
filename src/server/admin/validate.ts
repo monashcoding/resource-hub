@@ -10,81 +10,97 @@ import { z } from 'zod';
  * into public URLs: `/r/starting-comp-sci`.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * ⭐ EXERCISE 3 — turning a human name into a URL-safe slug
+ * 📖 WORKED EXAMPLE — read this one, don't write it
  * ─────────────────────────────────────────────────────────────────────────────
- *     npx vitest src/server/admin/validate.test.ts
+ * This one is already finished. It's here as a worked example: a real function
+ * doing a real job, small enough to follow line by line. Read it before you
+ * start exercise 1, and come back to it when you want a model for how a chain
+ * of small steps beats one clever step.
  *
- * WHAT IT HAS TO DO, as a chain of small transformations. Do them in this order:
- *   1. lowercase everything
- *   2. `.normalize('NFKD')` — splits an accented letter like `é` into two
- *      characters: a plain `e`, then a separate accent mark. That way step 3
- *      keeps the `e`. Without it, `é` is a single character that isn't a-z, so
- *      step 3 eats the whole letter: 'Café' would slugify to 'caf'.
- *   3. replace every run of characters that is NOT a lowercase letter or digit
- *      with a single hyphen
- *   4. remove hyphens stuck to the very start or the very end
- *   5. cut it off at 64 characters
+ * WHAT IT DOES, one line at a time. Each method RETURNS A NEW STRING and leaves
+ * the previous one alone, which is why they chain — the output of each line
+ * feeds the next.
  *
- * WORKED EXAMPLES
- *   'Resume Prep'                     → 'resume-prep'
- *   'Internships & Careers'           → 'internships-careers'
- *   '  --Where to Find Internships!  '→ 'where-to-find-internships'
- *   'Web  Dev   101'                  → 'web-dev-101'    (a run collapses to ONE -)
- *   'C++ & Data Structures'           → 'c-data-structures'
- *   'Résumé Prep'                     → 're-sume-prep'  ← surprising; see below
- *   '---'                             → ''               (nothing sluggable)
- *   'a' repeated 200 times            → 64 characters
+ *   .toLowerCase()                  'Résumé Prep'  →  'résumé prep'
  *
- * THE TOOLS YOU NEED
+ *       Do this FIRST. If you left it until after the next-but-one step, every
+ *       capital would count as "not a lowercase letter" and get eaten:
+ *       'Resume Prep' would come out as 'esume-rep'.
  *
- *   Strings in JavaScript are immutable: every method RETURNS a new string and
- *   leaves the original alone. That is why you chain them:
+ *   .normalize('NFKD')              'résumé prep'  →  'résumé prep'
  *
- *       'Hello World'.toLowerCase();            // 'hello world'
- *       'hi'.slice(0, 1);                       // 'h'   (from 0, up to but not including 1)
+ *       Looks identical, and isn't. It splits an accented letter like `é` into
+ *       TWO characters: a plain `e`, then a separate accent mark. That way the
+ *       `e` survives the next step. Without it, `é` is a single character that
+ *       isn't a-z, so the next step eats the whole letter and 'Café' would
+ *       slugify to 'caf'.
  *
- *   `.replace(pattern, 'with')` swaps matching text. The pattern here is a
- *   REGULAR EXPRESSION — a small language for "text shaped like this", written
- *   between slashes. You only need these pieces:
+ *   .replace(/[^a-z0-9]+/g, '-')    'résumé prep'  →  're-sume-prep'
  *
- *       /abc/           the literal text abc
- *       [a-z0-9]        any ONE lowercase letter or digit
- *       [^a-z0-9]       any ONE character that is NOT one of those (^ = "not")
- *       +               one or more of the thing before it
- *       g               (after the closing slash) replace EVERY match, not just the first
- *       ^  $            the very start / the very end of the string
- *       |               or
+ *       The interesting one. That pattern between the slashes is a REGULAR
+ *       EXPRESSION — a small language for "text shaped like this":
  *
- *   Put together:
+ *           [a-z0-9]     any ONE lowercase letter or digit
+ *           [^a-z0-9]    any ONE character that is NOT one of those (^ = "not")
+ *           +            one or more of the thing before it
+ *           g            (after the closing slash) replace EVERY match
  *
- *       'a  b!!c'.replace(/[^a-z0-9]+/g, '-');  // 'a-b-c'
- *       '--hi--'.replace(/^-+|-+$/g, '');       // 'hi'
+ *       So: "every run of characters that isn't a letter or digit becomes a
+ *       single hyphen". A run of three spaces collapses to ONE hyphen, which is
+ *       why 'Web  Dev   101' gives 'web-dev-101'. Without the `g` flag only the
+ *       first match would be replaced, and 'a b c' would give 'a-b c'.
  *
- *   Try these yourself before writing the function. Paste them into your
- *   browser's dev console, or run one from a terminal:
+ *   .replace(/^-+|-+$/g, '')        're-sume-prep'  →  're-sume-prep'  (no change here)
  *
- *       node -e "console.log('C++ & Data Structures'.toLowerCase().replace(/[^a-z0-9]+/g, '-'))"
+ *           ^   the very start of the string
+ *           $   the very end
+ *           |   or
  *
- * ⚠️  GOTCHA: without the `g` flag only the FIRST match is replaced, so
- *     'a b c' would come out as 'a-b c'.
+ *       So: "hyphens stuck to either end, remove them". This example has none
+ *       left to remove, so nothing happens. Where it earns its keep is input
+ *       with junk on the outside — the previous step leaves a hyphen on each
+ *       end, and this one takes them off:
  *
- * ⚠️  GOTCHA: order matters. Lowercase BEFORE the `[^a-z0-9]` step, or every
- *     capital letter counts as "not a lowercase letter" and gets eaten
- *     ('Resume Prep' would come out as 'esume-rep').
+ *           '  --Where to Find Internships!  '
+ *               → '-where-to-find-internships-'   (after the previous step)
+ *               → 'where-to-find-internships'     (after this one)
  *
- * ⚠️  Why 'Résumé Prep' becomes 're-sume-prep' and not 'resume-prep': after step
- *     2 the accent is its own character sitting between the `e` and the `s`, and
- *     step 3 turns any non-a-z0-9 character into a hyphen — including that one.
- *     The trailing accent in 'Résumé' is at the end of the word, so it becomes a
- *     hyphen that step 4 then trims off. This is a rough edge of a deliberately
- *     simple rule, not something you need to fix: what matters is that the slug
- *     is stable, unique and URL-safe, and 're-sume-prep' is all three.
+ *   .slice(0, 64)                   cut it off at 64 characters
+ *
+ *       from index 0, up to but NOT including index 64.
+ *
+ * MORE EXAMPLES
+ *   'Resume Prep'                      → 'resume-prep'
+ *   'Internships & Careers'            → 'internships-careers'
+ *   'C++ & Data Structures'            → 'c-data-structures'
+ *   'FIT1045'                          → 'fit1045'
+ *   '---'                              → ''            (nothing sluggable)
+ *   'Résumé Prep'                      → 're-sume-prep'  ← surprising; see below
+ *
+ * ⚠️  Why 'Résumé Prep' becomes 're-sume-prep' and not 'resume-prep': after the
+ *     normalize step the accent is its own character, sitting between the `e`
+ *     and the `s`, and the next step turns ANY non-a-z0-9 character into a
+ *     hyphen — including that one. (The second accent, at the end of 'résumé',
+ *     sits right next to the space, so the two of them together count as one
+ *     run and collapse into the single hyphen before 'prep'.) It's a rough edge
+ *     of a deliberately simple rule, not a bug to fix: what matters is that a
+ *     slug is stable, unique and URL-safe, and 're-sume-prep' is all three.
+ *
+ * TRY IT — change a line, run `npx vitest src/server/admin/validate.test.ts`,
+ * and watch which tests complain. Breaking working code on purpose and reading
+ * the failure is one of the fastest ways to understand what a line was for.
+ * (Put it back afterwards.) Or play with the pieces on their own:
+ *
+ *     node -e "console.log('C++ & Data Structures'.toLowerCase().replace(/[^a-z0-9]+/g, '-'))"
+ *
  */
 export function slugify(input: string): string {
-  // TODO(exercise 3): build the chain described above.
-  // Right now the name is returned untouched, so 'Interview Prep' would go
-  // straight into a URL, spaces, capitals and all.
-  return input;
+  return input
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64);
 }
 
 /**
@@ -95,7 +111,7 @@ export function slugify(input: string): string {
  * `free`?" question anywhere else in the codebase.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * ⭐ EXERCISE 4 — cleaning up a list, and removing duplicates
+ * ⭐ EXERCISE 3 — cleaning up a list, and removing duplicates
  * ─────────────────────────────────────────────────────────────────────────────
  *     npx vitest src/server/admin/validate.test.ts
  *
@@ -138,7 +154,7 @@ export function slugify(input: string): string {
  *
  *   (Worth knowing for later: bare `.sort()` compares things as TEXT, so
  *   `[10, 9].sort()` gives `[10, 9]` — '1' sorts before '9'. Numbers need a
- *   comparison function, as exercise 7 does.)
+ *   comparison function, as the `renormalise` worked example does.)
  *
  * ⚠️  GOTCHA: `.sort()` rearranges an array IN PLACE and returns that same
  *     array. Sorting `tags` directly would reorder the caller's array — one of
@@ -149,7 +165,7 @@ export function slugify(input: string): string {
  *     'free' as two different values, so de-duplicating first would not work.
  */
 export function normaliseTags(tags: string[]): string[] {
-  // TODO(exercise 4): return the cleaned, de-duplicated, sorted list.
+  // TODO(exercise 3): return the cleaned, de-duplicated, sorted list.
   // Right now the tags are stored exactly as typed, so ' Leetcode' and
   // 'leetcode' end up as two separate tags nobody can search consistently.
   return tags;

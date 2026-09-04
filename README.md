@@ -1,9 +1,9 @@
 > ### 📚 You're on the teaching branch
 >
-> This branch is the MAC Resource Hub with seven functions removed for someone
-> to write. If that's you, **open [`EXERCISES.md`](EXERCISES.md) and start
-> there** — this README is the project's real documentation and you don't need
-> most of it yet.
+> This branch is the MAC Resource Hub with five functions removed for someone to
+> write, plus two left finished as worked examples. If that's you, **open
+> [`EXERCISES.md`](EXERCISES.md) and start there** — this README is the
+> project's real documentation and you don't need most of it yet.
 >
 > The finished code is on `main`.
 

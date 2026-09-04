@@ -20,102 +20,102 @@ export type ReorderResult =
  * error, not something to silently ignore.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * ⭐ EXERCISE 7 — the boss level. Do the other six first.
+ * 📖 WORKED EXAMPLE — read this one, don't write it
  * ─────────────────────────────────────────────────────────────────────────────
- *     npx vitest src/server/admin/reorder.test.ts
+ * The hardest function in the set, already written, with its four steps marked
+ * in the body below. Read it once now and it'll look like nonsense; read it
+ * again after you've done the exercises and it won't. That's normal.
  *
- * WHAT IT HAS TO DO, in four steps. Write one step, run the tests, then write
- * the next. Do NOT try to write all four at once.
+ * THE FOUR STEPS
  *
- * STEP A — reject ids that don't belong here.
- *   Any id in `requestedIds` that is not the id of a row in `current` is a bug
- *   in the caller, not something to quietly skip. Collect ALL of them (the test
- *   "reports every unknown id, not just the first" checks this) and, if there is
- *   at least one, return:
- *       { ok: false, reason: 'unknown_ids', unknown: <the array you collected> }
+ *   STEP A — reject ids that don't belong to this parent.
+ *       An id the caller sent that isn't one of `current`'s rows is a bug in the
+ *       caller, not something to quietly skip. Note that it collects ALL the bad
+ *       ids and returns BEFORE touching anything else: half-renumbering and then
+ *       failing would be worse than not trying.
  *
- * STEP B — build the final order, ignoring repeats.
- *   Walk `requestedIds` in order and collect the ids into a new array, skipping
- *   any id you have already collected. Input [2, 2, 1, 3] gives [2, 1, 3].
+ *   STEP B — build the final order, ignoring repeats.
+ *       Walks the requested ids in order, skipping any already collected, so
+ *       [2, 2, 1, 3] becomes [2, 1, 3].
  *
- * STEP C — append the ones the client didn't mention.
- *   Any row in `current` whose id is not yet in your array goes on the end, in
- *   `sortOrder` order (ties broken by `id`, so the result never depends on luck).
- *   This is the step that stops a second committee member's new row vanishing.
+ *   STEP C — append the ones the client never mentioned.
+ *       This is the step that exists because of real life: two committee members
+ *       have the admin page open, one adds a resource, the other saves an order
+ *       that doesn't include it. Without this step that new row would silently
+ *       disappear. With it, it lands at the end.
  *
- * STEP D — hand out the numbers.
- *   Turn your ordered list of ids into `{ id, sortOrder }` objects numbered
- *   10, 20, 30, 40… and return { ok: true, updates: <that array> }.
+ *   STEP D — hand out fresh positions, 10, 20, 30, …
  *
- * WORKED EXAMPLE
+ * FOLLOW IT THROUGH
  *   current      = [ {id:1,sortOrder:10}, {id:2,sortOrder:20}, {id:3,sortOrder:30} ]
  *   requestedIds = [3, 1]
  *
- *   Step A: 3 and 1 are both known  → carry on
+ *   Step A: 3 and 1 are both known           → carry on
  *   Step B: ordered = [3, 1]
- *   Step C: row 2 was not mentioned → ordered = [3, 1, 2]
+ *   Step C: row 2 was never mentioned        → ordered = [3, 1, 2]
  *   Step D: → [ {id:3,sortOrder:10}, {id:1,sortOrder:20}, {id:2,sortOrder:30} ]
  *
- * THE TOOLS YOU NEED
+ * THE PIECES IT USES — you'll meet most of these in the exercises
  *
  *   A `Set` is a bag of values with no duplicates, and asking "is this in the
- *   bag?" is instant. Building one from an array is the normal way to answer
- *   "does this list contain X?" over and over:
+ *   bag?" is instant, which is why both steps A and B use one:
  *
  *       const known = new Set([1, 2, 3]);
  *       known.has(2);        // true
  *       known.has(9);        // false
  *       known.add(9);        // now it has 9 too
  *
- *   `.map()` makes a NEW array by transforming every element:
+ *   `.map()` makes a NEW array by transforming every element, and hands you the
+ *   position as a second argument — which is how step D gets 10, 20, 30
+ *   (position 0 → 10, position 1 → 20, …):
  *
- *       [ {id: 7}, {id: 8} ].map((row) => row.id);   // [7, 8]
+ *       [ {id: 7}, {id: 8} ].map((row) => row.id);        // [7, 8]
+ *       ['a', 'b'].map((letter, i) => `${i}:${letter}`);  // ['0:a', '1:b']
  *
- *   `.map()` also hands you the position as a second argument, which is how you
- *   get 10, 20, 30 (position 0 → 10, position 1 → 20, …):
- *
- *       ['a', 'b'].map((letter, i) => `${i}:${letter}`);   // ['0:a', '1:b']
- *
- *   `.filter()` makes a NEW array of only the elements you say `true` to:
- *
- *       [1, 2, 3].filter((n) => n > 1);              // [2, 3]
- *
- *   `[...array]` makes a copy of an array. `.sort()` rearranges an array IN
- *   PLACE, so sort a copy unless you mean to reorder the caller's array (a test
- *   checks you don't):
+ *   `[...array]` copies an array. `.sort()` rearranges an array IN PLACE, so
+ *   step C sorts a COPY — sorting `current` itself would reorder the caller's
+ *   array behind its back, and a test checks that it doesn't:
  *
  *       const copy = [...current];
  *       copy.sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
  *
- *   That comparison function reads as: order by sortOrder; if two are equal
- *   (`a.sortOrder - b.sortOrder` is 0, which counts as false) fall back to id.
+ *   That comparison reads as: order by sortOrder; if two are equal
+ *   (`a.sortOrder - b.sortOrder` is 0, which counts as false) fall back to id —
+ *   so the result never depends on luck.
  *
- *   `continue` skips to the next turn of a loop:
+ *   `continue` skips to the next turn of a loop, which is how step B ignores a
+ *   repeat without an extra level of indentation.
  *
- *       for (const id of ids) {
- *         if (seen.has(id)) continue;   // already had this one, move on
- *         ...
- *       }
+ * TRY IT — comment out step C, run `npx vitest src/server/admin/reorder.test.ts`,
+ * and exactly three MORE tests fail, all of them about siblings the client
+ * didn't send. That's the cleanest way to see what one step was actually for.
+ * (Put it back afterwards.)
  *
- * ⚠️  GOTCHAS
- *   - Return the STEP A failure before doing any other work. Half-renumbering
- *     and then failing would be worse than not trying.
- *   - `unknown` must list every bad id, in the order they appeared.
- *   - Empty inputs must work: `renormalise([], [])` returns
- *     `{ ok: true, updates: [] }`, and `renormalise([], current)` keeps the
- *     existing order rather than wiping it.
  */
 export function renormalise(requestedIds: number[], current: Positioned[]): ReorderResult {
-  // TODO(exercise 7), step A: reject any requested id that is not in `current`.
+  // STEP A — reject ids that don't belong to this parent, before doing any work.
+  const known = new Set(current.map((c) => c.id));
+  const unknown = requestedIds.filter((id) => !known.has(id));
+  if (unknown.length > 0) return { ok: false, reason: 'unknown_ids', unknown };
 
-  // TODO(exercise 7), step B: build the ordered list of ids, skipping repeats.
+  // STEP B — walk the requested order, skipping any id already collected.
+  const seen = new Set<number>();
+  const ordered: number[] = [];
+  for (const id of requestedIds) {
+    if (seen.has(id)) continue; // tolerate a duplicated id in the payload
+    seen.add(id);
+    ordered.push(id);
+  }
 
-  // TODO(exercise 7), step C: append any id in `current` you have not used yet,
-  // in sortOrder order.
+  // STEP C — append the siblings the client never mentioned, oldest position
+  // first, so a row someone else added mid-edit survives instead of vanishing.
+  const remainder = [...current].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+  for (const row of remainder) {
+    if (!seen.has(row.id)) ordered.push(row.id);
+  }
 
-  // TODO(exercise 7), step D: number them 10, 20, 30… and return them.
-  // This placeholder keeps everything exactly where it already is.
-  return { ok: true, updates: current.map((row) => ({ id: row.id, sortOrder: row.sortOrder })) };
+  // STEP D — hand out fresh positions: 10, 20, 30, …
+  return { ok: true, updates: ordered.map((id, i) => ({ id, sortOrder: (i + 1) * 10 })) };
 }
 
 /**
