@@ -59,7 +59,53 @@ const FALLBACK: RegionPresentation = {
   area: 'auto',
 };
 
-/** Presentation for a slug, or a neutral card if the slug is unknown. */
+/**
+ * Presentation for a slug, or a neutral card if the slug is unknown.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ⭐ EXERCISE 5 — looking something up, with a safe fallback
+ * ─────────────────────────────────────────────────────────────────────────────
+ *     npx vitest web/src/regions.test.ts
+ *
+ * WHAT IT HAS TO DO
+ * Look `slug` up in `REGION_PRESENTATION` above. If there is an entry, return
+ * it. If there isn't — someone added a region to the database seed but not to
+ * this file — return `FALLBACK` so the region still renders, just in grey.
+ *
+ * The point of this one is the fallback. A missing entry is a design bug worth
+ * fixing; a crash on the home page is an outage. Given the choice, degrade.
+ *
+ * WORKED EXAMPLES
+ *   presentationFor('starting-comp-sci')   → the blue entry defined above
+ *   presentationFor('not-a-real-region')   → FALLBACK (grey, area 'auto')
+ *
+ * THE TOOLS YOU NEED
+ *
+ *   `REGION_PRESENTATION` is an object used as a lookup table. Square brackets
+ *   read a key whose name you have in a variable:
+ *
+ *       const colours = { red: '#f00', blue: '#00f' };
+ *       colours.red;         // '#f00'   — when you know the key as you type
+ *       colours['red'];      // '#f00'   — the same thing
+ *       const key = 'blue';
+ *       colours[key];        // '#00f'   — when the key is in a variable
+ *       colours['green'];    // undefined — no such key. NOT an error, just undefined.
+ *
+ *   `??` is the "nullish coalescing" operator: use the left side unless it is
+ *   `null` or `undefined`, in which case use the right side.
+ *
+ *       undefined ?? 'backup';   // 'backup'
+ *       '#f00'    ?? 'backup';   // '#f00'
+ *
+ *   So the whole function is one `return` with a `??` in it.
+ *
+ * ⚠️  GOTCHA: don't reach for `||` here. `||` falls back on ANY falsy value —
+ *     `0`, `''`, `false` — which is a bug waiting to happen the day a legitimate
+ *     value is one of those. `??` only falls back on null/undefined, which is
+ *     what "there was no entry" actually means.
+ */
 export function presentationFor(slug: string): RegionPresentation {
-  return REGION_PRESENTATION[slug] ?? FALLBACK;
+  // TODO(exercise 5): return the entry for `slug`, falling back to FALLBACK.
+  // Right now every region on the map is drawn in the same neutral grey.
+  return FALLBACK;
 }

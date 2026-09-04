@@ -1,23 +1,139 @@
 import { z } from 'zod';
 
-/** Slugify a name for use as a category slug. */
+/**
+ * Slugify a name for use as a category slug.
+ *
+ * A slug is the machine-readable version of a name: `"Interview Prep"` becomes
+ * `"interview-prep"`. It is what ends up in URLs, so it may only contain
+ * lowercase letters, digits and single hyphens.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ⭐ EXERCISE 3 — turning a human name into a URL-safe slug
+ * ─────────────────────────────────────────────────────────────────────────────
+ *     npx vitest src/server/admin/validate.test.ts
+ *
+ * WHAT IT HAS TO DO, as a chain of small transformations. Do them in this order:
+ *   1. lowercase everything
+ *   2. `.normalize('NFKD')` — splits an accented letter like `é` into a plain
+ *      `e` plus a separate accent mark, so step 3 keeps the letter and drops
+ *      only the mark. (Without this, `é` is one character that is not a-z and
+ *      the whole letter disappears.)
+ *   3. replace every run of characters that is NOT a lowercase letter or digit
+ *      with a single hyphen
+ *   4. remove hyphens stuck to the very start or the very end
+ *   5. cut it off at 64 characters
+ *
+ * WORKED EXAMPLES
+ *   'Resume Prep'                     → 'resume-prep'
+ *   'Internships & Careers'           → 'internships-careers'
+ *   '  --Where to Find Internships!  '→ 'where-to-find-internships'
+ *   'Web  Dev   101'                  → 'web-dev-101'    (a run collapses to ONE -)
+ *   'C++ & Data Structures'           → 'c-data-structures'
+ *   'Résumé Prep'                     → 're-sume-prep'
+ *   '---'                             → ''               (nothing sluggable)
+ *   'a' repeated 200 times            → 64 characters
+ *
+ * THE TOOLS YOU NEED
+ *
+ *   Strings in JavaScript are immutable: every method RETURNS a new string and
+ *   leaves the original alone. That is why you chain them:
+ *
+ *       'Hello World'.toLowerCase();            // 'hello world'
+ *       'hi'.slice(0, 1);                       // 'h'   (from 0, up to but not including 1)
+ *
+ *   `.replace(pattern, 'with')` swaps matching text. The pattern here is a
+ *   REGULAR EXPRESSION — a small language for "text shaped like this", written
+ *   between slashes. You only need these pieces:
+ *
+ *       /abc/           the literal text abc
+ *       [a-z0-9]        any ONE lowercase letter or digit
+ *       [^a-z0-9]       any ONE character that is NOT one of those (^ = "not")
+ *       +               one or more of the thing before it
+ *       g               (after the closing slash) replace EVERY match, not just the first
+ *       ^  $            the very start / the very end of the string
+ *       |               or
+ *
+ *   Put together:
+ *
+ *       'a  b!!c'.replace(/[^a-z0-9]+/g, '-');  // 'a-b-c'
+ *       '--hi--'.replace(/^-+|-+$/g, '');       // 'hi'
+ *
+ *   Try these yourself before writing the function — paste them into a browser
+ *   console, or run `node -e "console.log('a  b!!c'.replace(/[^a-z0-9]+/g, '-'))"`.
+ *
+ * ⚠️  GOTCHA: without the `g` flag only the FIRST match is replaced, so
+ *     'a b c' would come out as 'a-b c'.
+ *
+ * ⚠️  GOTCHA: order matters. Lowercase BEFORE the `[^a-z0-9]` step, or every
+ *     capital letter counts as "not a lowercase letter" and gets eaten.
+ */
 export function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 64);
+  // TODO(exercise 3): build the chain described above.
+  // Right now the name is returned untouched, so 'Interview Prep' would go
+  // straight into a URL, spaces, capitals and all.
+  return input;
 }
 
-/** Tags are stored lowercased, trimmed, de-duplicated and never empty strings. */
+/**
+ * Tags are stored lowercased, trimmed, de-duplicated and never empty strings.
+ *
+ * Normalising on the way IN means everything downstream — searching, filtering,
+ * counting — can just compare strings, with no "is `Free` the same tag as
+ * `free`?" question anywhere else in the codebase.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ⭐ EXERCISE 4 — cleaning up a list, and removing duplicates
+ * ─────────────────────────────────────────────────────────────────────────────
+ *     npx vitest src/server/admin/validate.test.ts
+ *
+ * WHAT IT HAS TO DO
+ * Take a list of tags a committee member typed and return a tidy version:
+ *   - each tag trimmed of surrounding spaces and lowercased
+ *   - tags that are empty after trimming thrown away entirely
+ *   - duplicates removed (after lowercasing — 'Free' and 'free' are one tag)
+ *   - the result sorted alphabetically
+ *   - the array you were GIVEN left untouched
+ *
+ * WORKED EXAMPLES
+ *   [' Leetcode', 'leetcode', '', '  ', 'Free']  → ['free', 'leetcode']
+ *   ['zebra', 'apple', 'Mango']                  → ['apple', 'mango', 'zebra']
+ *   ['Free', 'FREE', ' free ']                   → ['free']
+ *   []                                           → []
+ *
+ * THE TOOLS YOU NEED
+ *
+ *   `.trim()` removes spaces from both ends: `'  hi  '.trim()` is `'hi'`.
+ *
+ *   An empty string `''` is "falsy", so this reads as "if there is anything
+ *   left after trimming":
+ *
+ *       if (tag) { ... }
+ *
+ *   A `Set` cannot hold the same value twice, which makes it the tidiest way to
+ *   drop duplicates. Spread it back into an array with `[...set]`:
+ *
+ *       const seen = new Set<string>();
+ *       seen.add('a');
+ *       seen.add('a');       // no effect, it is already there
+ *       [...seen];           // ['a']
+ *
+ *   `.sort()` with no arguments sorts strings alphabetically:
+ *
+ *       ['b', 'a'].sort();   // ['a', 'b']
+ *
+ * ⚠️  GOTCHA: `.sort()` rearranges an array IN PLACE and returns that same
+ *     array. Sorting `tags` directly would reorder the caller's array — one of
+ *     the tests checks you don't. Sorting the fresh array you built from your
+ *     Set is fine, because you own that one.
+ *
+ * ⚠️  GOTCHA: lowercase BEFORE putting it in the Set. A Set treats 'Free' and
+ *     'free' as two different values, so de-duplicating first would not work.
+ */
 export function normaliseTags(tags: string[]): string[] {
-  const seen = new Set<string>();
-  for (const raw of tags) {
-    const tag = raw.trim().toLowerCase();
-    if (tag) seen.add(tag);
-  }
-  return [...seen].sort();
+  // TODO(exercise 4): return the cleaned, de-duplicated, sorted list.
+  // Right now the tags are stored exactly as typed, so ' Leetcode' and
+  // 'leetcode' end up as two separate tags nobody can search consistently.
+  return tags;
 }
 
 // Links are shown to students and open in a new tab — http:// would be a

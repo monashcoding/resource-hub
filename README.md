@@ -1,3 +1,12 @@
+> ### 📚 You're on the teaching branch
+>
+> This branch is the MAC Resource Hub with seven functions removed for someone
+> to write. If that's you, **open [`EXERCISES.md`](EXERCISES.md) and start
+> there** — this README is the project's real documentation and you don't need
+> most of it yet.
+>
+> The finished code is on `main`.
+
 # MAC Resource Hub
 
 A map-style directory of curated resources for Monash CS students, run by the Monash

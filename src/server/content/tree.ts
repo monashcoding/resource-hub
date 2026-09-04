@@ -69,9 +69,61 @@ const byOrder = <T extends { sortOrder: number; id: number }>(a: T, b: T): numbe
  * Exported so it can be unit-tested directly, but it stays in this file on
  * purpose: `tree.ts` is the single place visibility rules live. Do not copy this
  * condition anywhere else — call this instead, or the two will drift.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ⭐ EXERCISE 1 — the most important four lines in the whole app
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Run this exercise's tests with:
+ *
+ *     npx vitest src/server/content/tree.test.ts
+ *
+ * WHAT IT HAS TO DO
+ * Given one row, answer true/false: is a member of the public allowed to see it?
+ * Say `true` only when BOTH of these hold:
+ *   1. `row.status` is exactly the string `'published'`
+ *   2. `row.archivedAt` is `null` (nothing has archived it)
+ *
+ * A row has four possible statuses — `'published'`, `'hidden'`, `'pending'`,
+ * `'rejected'` — and only the first one is public. `archivedAt` is either `null`
+ * (not archived) or a `Date` (archived at that moment). Note that an archived
+ * row usually still has status `'published'`, which is exactly why you need both
+ * halves and not just one.
+ *
+ * WORKED EXAMPLES
+ *   { status: 'published', archivedAt: null }        → true
+ *   { status: 'hidden',    archivedAt: null }        → false   (not published)
+ *   { status: 'pending',   archivedAt: null }        → false   (not vetted yet)
+ *   { status: 'published', archivedAt: new Date() }  → false   (archived)
+ *
+ * THE TOOLS YOU NEED
+ *   `===` compares two values and gives back true or false. Always use `===`,
+ *   never `==` — `==` does surprising conversions ( '1' == 1 is true! ).
+ *
+ *       const name = 'published';
+ *       name === 'published'   // true
+ *       name === 'hidden'      // false
+ *
+ *   `&&` means "and": the whole thing is true only when BOTH sides are true.
+ *
+ *       true  && true          // true
+ *       true  && false         // false
+ *
+ *   And you can `return` a comparison directly. These two are identical, and the
+ *   second is the one to write:
+ *
+ *       if (x === 3) { return true; } else { return false; }
+ *       return x === 3;
+ *
+ * ⚠️  GOTCHA: `null` and `undefined` are different values in JavaScript. This
+ *     column is `null` when it is not set, so compare against `null`.
+ *
+ * REPLACE the `return false;` below. It should end up as a single line.
  */
 export function isPubliclyVisible(row: Pick<ResourceRow, 'status' | 'archivedAt'>): boolean {
-  return row.status === 'published' && row.archivedAt === null;
+  // TODO(exercise 1): return true only when the row is published AND not archived.
+  // Right now this hides every resource from the public — which is safe, but a
+  // completely empty website.
+  return false;
 }
 
 /**
